@@ -38,7 +38,12 @@ extract() {
   local path="$1"
   local filename="$2"
   local output="$3"
-  tar -xvf "${path}/${filename}" --strip-components=1 -C "${output}"
+  if [ -n "${DEBUG}" ]; then
+    local VERBOSE="v"
+  else
+    local VERBOSE=""
+  fi
+  tar -x${VERBOSE}f "${path}/${filename}" --strip-components=1 -C "${output}"
 }
 
 get_download_url() {
