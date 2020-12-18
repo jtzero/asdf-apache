@@ -8,7 +8,7 @@ if [ -n "${DEBUG}" ]; then
 fi
 
 ASDF_INSTALL_TYPE=${ASDF_INSTALL_TYPE}
-TMPDIR="${TMPDIR:-$(mktemp -d -t flink_install)}/"
+TMPDIR="${TMPDIR:-$(mktemp -d -t flink_install_XXXXXXX)}/"
 SCALA_VERSION="${SCALA_VERSION:-"scala_2.11"}"
 PRODUCT_NAME="flink"
 [ -n "$ASDF_INSTALL_VERSION" ] || (>&2 echo 'Missing ASDF_INSTALL_VERSION' && exit 1)
