@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: asdf_plugin_test
-        uses: asdf-vm/actions/plugin-test@v1.0.0
+        uses: asdf-vm/actions/plugin-test@v1.0.1
         with:
           command: " "
         env:
@@ -20,7 +20,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: asdf_plugin_test
-        uses: asdf-vm/actions/plugin-test@v1.0.0
+        uses: asdf-vm/actions/plugin-test@v1.0.1
         with:
           command: " "
         env:
