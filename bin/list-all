@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+DEBUG="${DEBUG:-}"
+
+if [ -n "${DEBUG}" ]; then
+  set -x
+fi
+
+releases_path="https://archive.apache.org/dist/flink/"
+curl_cmd="$(command -vp curl)"
+cmd="${curl_cmd} -fsS"
+
+# stolen from https://github.com/rbenv/ruby-build/pull/631/files#diff-fdcfb8a18714b33b07529b7d02b54f1dR942
+function sort_versions() {
+  sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' | \
+    LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
+}
+
+# Fetch all tag names, and get only second column. Then remove all unnecesary characters.
+raw_versions="$(eval $cmd $releases_path)"
+greped_versions=$(echo "${raw_versions}" | grep -o '">flink.*/<' | grep -o 'flink.*' | cut -d/ -f1 | cut -d- -f2-)
+versions=$(echo "$greped_versions" | sort_versions)
+echo $versions
+
+if [ ! -z "${DEBUG}" ]; then
+  set +x
+fi
