@@ -52,7 +52,7 @@ export -f releases_path
 export -f list_versions
 export -f sort_top_level_versions
 
-echo "$(parallel --jobs $count get_sub_versions <<< "${init_versions}")"
+echo "$(parallel --jobs $count get_sub_versions <<< "${init_versions}")" | tr "\n" " "
 
 if [ ! -z "${DEBUG}" ]; then
   set +x
