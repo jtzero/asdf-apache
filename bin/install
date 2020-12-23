@@ -9,13 +9,14 @@ fi
 
 if [ -z "${BASH_SOURCE}" ]; then
   # zsh
-  THIS_DIR="$( cd "$( dirname "${(%):-%N}" )" && pwd )"
+  readonly THIS_DIR="$( cd "$( dirname "${(%):-%N}" )" && pwd )"
 else
-  THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+  readonly THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 fi
 
+readonly PRODUCT_NAME="$(basename "$(dirname ${THIS_DIR})")"
+
 ASDF_INSTALL_TYPE=${ASDF_INSTALL_TYPE}
-PRODUCT_NAME="flink"
 TMPDIR="${TMPDIR:-$(mktemp -d -t "${PRODUCT_NAME}_install_XXXXXXX")}/"
 SCALA_VERSION="${SCALA_VERSION:-"scala_2.11"}"
 [ -n "$ASDF_INSTALL_VERSION" ] || (>&2 echo 'Missing ASDF_INSTALL_VERSION' && exit 1)
