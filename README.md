@@ -1,13 +1,13 @@
-# asdf-flink
+# asdf-apache
 
-[![tests](https://github.com/jtzero/asdf-flink/workflows/tests/badge.svg)](https://github.com/jtzero/asdf-flink/actions)
+[![tests](https://github.com/jtzero/asdf-apache/workflows/tests/badge.svg)](https://github.com/jtzero/asdf-apache/actions)
 
-apache flink plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
+apache flink|zeppelin|... in theory anytthing in https://archive.apache.org/dist/, plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
 ## Install
 
 ```
-asdf plugin-add flink https://github.com/jtzero/asdf-flink.git
+asdf plugin-add link https://github.com/jtzero/asdf-flink.git
 ```
 
 ## Use
