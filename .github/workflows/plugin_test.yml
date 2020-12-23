@@ -9,19 +9,35 @@ jobs:
   ubuntu_test:
     runs-on: ubuntu-latest
     steps:
-      - name: asdf_plugin_test
+      - name: asdf_plugin_test_flink
         uses: asdf-vm/actions/plugin-test@v1.1.0
         with:
           command: " "
+          plugin: "flink"
+        env:
+          DEBUG: 1
+      - name: asdf_plugin_test_zeppelin
+        uses: asdf-vm/actions/plugin-test@v1.1.0
+        with:
+          command: " "
+          plugin: "zeppelin"
         env:
           DEBUG: 1
 
   macos_test:
     runs-on: macos-latest
     steps:
-      - name: asdf_plugin_test
+      - name: asdf_plugin_test_flink
         uses: asdf-vm/actions/plugin-test@v1.1.0
         with:
           command: " "
+          plugin: "flink"
+        env:
+          DEBUG: 1
+      - name: asdf_plugin_test_zeppelin
+        uses: asdf-vm/actions/plugin-test@v1.1.0
+        with:
+          command: " "
+          plugin: "zeppelin"
         env:
           DEBUG: 1
