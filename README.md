@@ -7,7 +7,7 @@ apache flink|zeppelin|... in theory anytthing in https://archive.apache.org/dist
 ## Install
 
 ```
-asdf plugin-add link https://github.com/jtzero/asdf-apache.git
+asdf plugin-add flink https://github.com/jtzero/asdf-apache.git
 ```
 ```
 asdf plugin-add zeppelin https://github.com/jtzero/asdf-apache.git
