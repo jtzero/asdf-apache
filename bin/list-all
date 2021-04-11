@@ -55,7 +55,7 @@ get_sub_versions() {
   local version="$2"
   local sub_release_path="$(releases_path "${product_name}" "${version}/")"
   local file_names="$(list_versions "${product_name}" "${sub_release_path}")"
-  printf "${file_names}" | grep 'tgz|tar.gz' | sed -E 's/'"${product_name}"'-(.+)(.tgz|.tar.gz)/\1/g'
+  printf "${file_names}" | grep -E 'tgz|tar.gz' | sed -E 's/'"${product_name}"'-(.+)(.tgz|.tar.gz)/\1/g'
 }
 
 export -f get_sub_versions
