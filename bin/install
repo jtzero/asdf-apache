@@ -3,18 +3,24 @@
 set -e
 set -o pipefail
 
+DEBUG="${DEBUG:-}"
+
 if [ -n "${DEBUG}" ]; then
   set -x
 fi
 
 if [ -z "${BASH_SOURCE}" ]; then
   # zsh
-  readonly THIS_DIR="$( cd "$( dirname "${(%):-%N}" )" && pwd )"
+  readonly BIN_DIR="$( cd "$( dirname "${(%):-%N}" )" && pwd )"
 else
-  readonly THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+  readonly BIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 fi
 
-readonly PRODUCT_NAME="$(basename "$(dirname ${THIS_DIR})")"
+readonly PRODUCT_NAME="$(basename "$(dirname ${BIN_DIR})")"
+
+source "$(dirname "${BIN_DIR}")/lib/default.sh"
+
+load_specific_config "${PRODUCT_NAME}"
 
 ASDF_INSTALL_TYPE=${ASDF_INSTALL_TYPE}
 TMPDIR="${TMPDIR:-$(mktemp -d -t "${PRODUCT_NAME}_install_XXXXXXX")}/"
@@ -51,13 +57,6 @@ extract() {
     local VERBOSE=""
   fi
   tar -x${VERBOSE}f "${path}/${filename}" --strip-components=1 -C "${output}"
-}
-
-get_download_url() {
-  local product_name="$1"
-  local semver="$2"
-  local versions="$3"
-  echo "https://archive.apache.org/dist/${product_name}/${product_name}-${semver}/${product_name}-${versions}.tgz"
 }
 
 download() {

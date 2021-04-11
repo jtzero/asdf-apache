@@ -14,7 +14,11 @@ else
   readonly THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 fi
 
+source "$(dirname "${THIS_DIR}")/lib/default.sh"
+
 readonly PRODUCT_NAME="$(basename "$(dirname ${THIS_DIR})")"
+
+load_specific_config "${PRODUCT_NAME}"
 
 command -vp curl 2>&1 >/dev/null || (>&2 echo 'Missing curl' && exit 1)
 command -v parallel 2>&1 >/dev/null || (>&2 echo 'Missing gnu parallel' && exit 1)
@@ -35,7 +39,7 @@ list_versions() {
 
   # Fetch all tag names, and get only second column. Then remove all unnecesary characters.
   local raw_versions="$(eval $cmd $releases_path)"
-  local trimmed_versions="$(echo "${raw_versions}" | grep -oE "${grep_str}" | sed -E 's/.+"(.+)">/\1/g' | cut -d/ -f1  )"
+  local trimmed_versions="$(echo "${raw_versions}" | grep -oE "${grep_str}" | sed -E 's/.+"(apache-)?(.+)">/\2/g' | cut -d/ -f1  )"
   echo "${trimmed_versions}" | sort_top_level_versions
 }
 
