@@ -14,11 +14,7 @@ else
   readonly THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 fi
 
-source "$(dirname "${THIS_DIR}")/lib/default.sh"
-
 readonly PRODUCT_NAME="$(basename "$(dirname ${THIS_DIR})")"
-
-load_specific_config "${PRODUCT_NAME}"
 
 command -vp curl 2>&1 >/dev/null || (>&2 echo 'Missing curl' && exit 1)
 command -v parallel 2>&1 >/dev/null || (>&2 echo 'Missing gnu parallel' && exit 1)

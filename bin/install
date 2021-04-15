@@ -18,9 +18,7 @@ fi
 
 readonly PRODUCT_NAME="$(basename "$(dirname ${BIN_DIR})")"
 
-source "$(dirname "${BIN_DIR}")/lib/default.sh"
-
-load_specific_config "${PRODUCT_NAME}"
+source "$(dirname "${BIN_DIR}")/lib/download_utils.sh"
 
 ASDF_INSTALL_TYPE=${ASDF_INSTALL_TYPE}
 TMPDIR="${TMPDIR:-$(mktemp -d -t "${PRODUCT_NAME}_install_XXXXXXX")}/"
