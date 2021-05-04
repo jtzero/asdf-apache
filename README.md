@@ -12,6 +12,11 @@ asdf plugin-add flink https://github.com/jtzero/asdf-apache.git
 ```
 asdf plugin-add zeppelin https://github.com/jtzero/asdf-apache.git
 ```
+```
+asdf plugin-add pulsar https://github.com/jtzero/asdf-apache.git
+```
+
+
 
 ## Use
 
