@@ -16,6 +16,8 @@ asdf plugin-add zeppelin https://github.com/jtzero/asdf-apache.git
 asdf plugin-add pulsar https://github.com/jtzero/asdf-apache.git
 ```
 
+### Unsupported
+* openoffice
 
 
 ## Use
