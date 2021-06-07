@@ -18,6 +18,10 @@ asdf plugin-add pulsar https://github.com/jtzero/asdf-apache.git
 ```
 asdf plugin-add kafka https://github.com/jtzero/asdf-apache.git
 ```
+=======
+
+### Unsupported
+* openoffice
 
 
 ## Use
@@ -25,7 +29,7 @@ asdf plugin-add kafka https://github.com/jtzero/asdf-apache.git
 Check out the [asdf](https://github.com/asdf-vm/asdf) readme for instructions on how to install and manage asdf plugin versions
 
 ### Including source versions
-`INCLUDE_SRC=1 asdf list-all pulsar`
+`INCLUDE_SRC=true asdf list-all pulsar`
 
 ### Including site-docs versions
-`INCLUDE_SITE_DOCS=1 asdf list-all pulsar`
+`INCLUDE_SITE_DOCS=true asdf list-all kafka`

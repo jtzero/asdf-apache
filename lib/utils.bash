@@ -2,11 +2,10 @@
 
 set -euo pipefail
 
-TOOL_PRODUCT_NAME=""
-TOOL_PRODUCT_NAME="$(basename "$(dirname ${ASDF_INSTALL_PATH})")"
+TOOL_PRODUCT_NAME="$(basename "$(dirname "${ASDF_INSTALL_PATH}")")"
 readonly TOOL_PRODUCT_NAME
 
-readonly TOOL_NAME="asdf-apache"
+readonly TOOL_NAME="apache"
 
 fail() {
   echo -e "asdf-$TOOL_NAME|$TOOL_PRODUCT_NAME: $*"
