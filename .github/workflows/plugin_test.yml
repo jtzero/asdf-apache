@@ -15,13 +15,6 @@ jobs:
   ubuntu_test:
     runs-on: ubuntu-latest
     steps:
-      - name: asdf_plugin_test_flink
-        uses: asdf-vm/actions/plugin-test@v1.1.0
-        with:
-          command: " "
-          plugin: "flink"
-        env:
-          DEBUG: 1
       - name: asdf_plugin_test_zeppelin
         uses: asdf-vm/actions/plugin-test@v1.1.0
         with:
@@ -29,18 +22,25 @@ jobs:
           plugin: "zeppelin"
         env:
           DEBUG: 1
-      - name: asdf_plugin_test_druid
-        uses: asdf-vm/actions/plugin-test@v1.1.0
-        with:
-          command: " "
-          plugin: "druid"
-        env:
-          DEBUG: 1
       - name: asdf_plugin_test_kafka
         uses: asdf-vm/actions/plugin-test@v1.1.0
         with:
           command: " "
           plugin: "kafka"
+        env:
+          DEBUG: 1
+      - name: asdf_plugin_test_flink
+        uses: asdf-vm/actions/plugin-test@v1.1.0
+        with:
+          command: " "
+          plugin: "flink"
+        env:
+          DEBUG: 1
+      - name: asdf_plugin_test_druid
+        uses: asdf-vm/actions/plugin-test@v1.1.0
+        with:
+          command: " "
+          plugin: "druid"
         env:
           DEBUG: 1
 

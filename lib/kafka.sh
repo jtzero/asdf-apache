@@ -17,18 +17,17 @@ default_filename_extended_pattern() {
 list_sub_versions() {
   local file_names="${1}"
   local include_src="${2}"
-  local include_site_docs="${INCLUDE_SITE_DOCS:-0}"
+  local include_site_docs="${INCLUDE_SITE_DOCS:-false}"
   local compressed
-  include_site_docs="${3:-1}"
   compressed="$(printf "%s" "${file_names}" |
     grep -E 'tgz|tar\.gz' |
     sed -E 's/'"${product_name}"'[-_](.+)(\.tgz|\.tar.gz)/\1/g')"
 
   local filters=()
-  if [ "${include_src}" = "1" ]; then
+  if [ "${include_src}" = "true" ]; then
     filters[1]='\-src'
   fi
-  if [ "${include_site_docs}" = "1" ]; then
+  if [ "${include_site_docs}" = "true" ]; then
     filters[2]='\-site-docs'
   fi
 
