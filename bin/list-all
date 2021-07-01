@@ -61,9 +61,15 @@ get_sub_versions() {
   sub_release_path="$(releases_path "${product_name}" "${version}/")"
   file_names="$(list_versions "${product_name}" "${sub_release_path}")"
   if [ "${include_src}" = true ] ; then
-    printf "%s" "${file_names}" | grep -E 'tgz|tar.gz' | sed -E 's/'"${product_name}"'-(.+)(-bin|(-src))(.tgz|.tar.gz)/\1\3/g'
+    printf "%s" "${file_names}" | \
+      grep -E 'tgz|tar\.gz' | \
+      sed -E 's/'"${product_name}"'-(.+)(\.tgz|\.tar.gz)/\1/g' | \
+      sed 's/\-bin//g'
   else
-    printf "%s" "${file_names}" | grep -E '\-bin.tgz|\-bin.tar.gz' | sed -E 's/'"${product_name}"'-(.+)-bin(.tgz|.tar.gz)/\1/g'
+    printf "%s" "${file_names}" | \
+      grep -E '\-bin.*\.tgz|\-bin.*\.tar\.gz' | \
+      sed -E 's/'"${product_name}"'-(.+)(\.tgz|\.tar.gz)/\1/g' | \
+      sed 's/\-bin//g'
   fi
 }
 
@@ -75,8 +81,8 @@ export -f sort_top_level_versions
 release_path="$(releases_path "${PRODUCT_NAME}")"
 init_versions="$(list_versions "${PRODUCT_NAME}" "${release_path}")"
 count="$(wc -l <<<"${init_versions}")"
-
-echo "$(parallel --jobs $count get_sub_versions "${PRODUCT_NAME}" "${INCLUDE_SRC}" <<< "${init_versions}")" |  sort_sub_versions | tr "\n" " "
+#parallel -j0 -N 60 --pipe parallel -j0
+echo "$(parallel --jobs 60 get_sub_versions "${PRODUCT_NAME}" "${INCLUDE_SRC}" <<< "${init_versions}")" |  sort_sub_versions | tr "\n" " "
 
 if [ -n "${DEBUG}" ]; then
   set +x
