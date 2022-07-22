@@ -30,10 +30,21 @@ jobs:
           plugin: "druid"
         env:
           DEBUG: 1
+      - name: asdf_plugin_test_kafka
+        uses: asdf-vm/actions/plugin-test@v1.1.0
+        with:
+          command: " "
+          plugin: "kafka"
+        env:
+          DEBUG: 1
 
   macos_test:
     runs-on: macos-latest
     steps:
+      - name: pre
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          brew install parallel
       - name: asdf_plugin_test_flink
         uses: asdf-vm/actions/plugin-test@v1.1.0
         with:
@@ -53,5 +64,12 @@ jobs:
         with:
           command: " "
           plugin: "druid"
+        env:
+          DEBUG: 1
+      - name: asdf_plugin_test_kafka
+        uses: asdf-vm/actions/plugin-test@v1.1.0
+        with:
+          command: " "
+          plugin: "kafka"
         env:
           DEBUG: 1
