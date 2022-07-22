@@ -15,8 +15,9 @@ else
 fi
 
 readonly INCLUDE_SRC="${INCLUDE_SRC:-1}"
-
-readonly PRODUCT_NAME="$(basename "$(dirname ${THIS_DIR})")"
+readonly THIS_PLUGIN_DIR="$(dirname "${THIS_DIR}")"
+readonly THIS_PLUGIN_LIB_DIR="${THIS_PLUGIN_DIR}/lib"
+readonly PRODUCT_NAME="$(basename "${THIS_PLUGIN_DIR}")"
 
 command -vp curl 2>&1 >/dev/null || (>&2 echo 'Missing curl' && exit 1)
 command -v parallel 2>&1 >/dev/null || (>&2 echo 'Missing gnu parallel' && exit 1)
@@ -27,6 +28,19 @@ releases_path() {
   echo "https://archive.apache.org/dist/${product_name}/${version}"
 }
 
+list_release_folders() {
+  local product_name="$1"
+  local releases_path="$2"
+  local curl_cmd cmd raw_versions trimmed_versions grep_str
+  curl_cmd="$(command -vp curl)"
+  cmd="${curl_cmd} -fsS"
+
+  raw_versions="$(eval $cmd $releases_path)"
+  grep_str='href=".+\/">'
+  trimmed_versions="$(echo "${raw_versions}" | grep -oE "${grep_str}" | sed -E 's/.+"(apache-)?(.+)">/\2/g' | cut -d/ -f1  )"
+  echo "${trimmed_versions}" | sort_top_level_versions
+}
+
 list_versions() {
   local product_name="$1"
   local releases_path="$2"
@@ -34,10 +48,8 @@ list_versions() {
   curl_cmd="$(command -vp curl)"
   cmd="${curl_cmd} -fsS"
 
-  grep_str='href=".*'"(${product_name})?"'.+(\/|tgz|tar.gz)">'
-
-  # Fetch all tag names, and get only second column. Then remove all unnecesary characters.
   raw_versions="$(eval $cmd $releases_path)"
+  grep_str='href=".*'"(${product_name})?"'.+(tgz|tar.gz)">'
   trimmed_versions="$(echo "${raw_versions}" | grep -oE "${grep_str}" | sed -E 's/.+"(apache-)?(.+)">/\2/g' | cut -d/ -f1  )"
   echo "${trimmed_versions}" | sort_top_level_versions
 }
@@ -58,18 +70,24 @@ get_sub_versions() {
   local include_src="$2"
   local version="$3"
   local sub_release_path file_names
+  local product_lib_file="${THIS_PLUGIN_LIB_DIR}/${product_name}.sh"
   sub_release_path="$(releases_path "${product_name}" "${version}/")"
   file_names="$(list_versions "${product_name}" "${sub_release_path}")"
-  if [ "${include_src}" = true ] ; then
-    printf "%s" "${file_names}" | \
-      grep -E 'tgz|tar\.gz' | \
-      sed -E 's/'"${product_name}"'-(.+)(\.tgz|\.tar.gz)/\1/g' | \
-      sed 's/\-bin//g'
+  if [ -f "${product_lib_file}" ]; then
+    . "${product_lib_file}"
+    list_sub_versions "${file_names}" "${include_src}"
   else
-    printf "%s" "${file_names}" | \
-      grep -E '\-bin.*\.tgz|\-bin.*\.tar\.gz' | \
-      sed -E 's/'"${product_name}"'-(.+)(\.tgz|\.tar.gz)/\1/g' | \
-      sed 's/\-bin//g'
+    if [ "${include_src}" = "0" ] ; then
+      printf "%s" "${file_names}" | \
+        grep -E 'tgz|tar\.gz' | \
+        sed -E 's/'"${product_name}"'-(.+)(\.tgz|\.tar.gz)/\1/g' | \
+        sed 's/\-bin//g'
+    else
+      printf "%s" "${file_names}" | \
+        grep -E '\-bin.*\.tgz|\-bin.*\.tar\.gz' | \
+        sed -E 's/'"${product_name}"'-(.+)(\.tgz|\.tar.gz)/\1/g' | \
+        sed 's/\-bin//g'
+    fi
   fi
 }
 
@@ -77,12 +95,13 @@ export -f get_sub_versions
 export -f releases_path
 export -f list_versions
 export -f sort_top_level_versions
+export SHELLOPTS
+export THIS_PLUGIN_LIB_DIR
 
 release_path="$(releases_path "${PRODUCT_NAME}")"
-init_versions="$(list_versions "${PRODUCT_NAME}" "${release_path}")"
+init_versions="$(list_release_folders "${PRODUCT_NAME}" "${release_path}")"
 count="$(wc -l <<<"${init_versions}")"
-#parallel -j0 -N 60 --pipe parallel -j0
-echo "$(parallel --jobs 60 get_sub_versions "${PRODUCT_NAME}" "${INCLUDE_SRC}" <<< "${init_versions}")" |  sort_sub_versions | tr "\n" " "
+echo "$(parallel --jobs ${count} get_sub_versions "${PRODUCT_NAME}" "1" <<< "${init_versions}")" |  sort_sub_versions | tr "\n" " "
 
 if [ -n "${DEBUG}" ]; then
   set +x
