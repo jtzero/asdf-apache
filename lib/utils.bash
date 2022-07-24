@@ -2,9 +2,11 @@
 
 set -euo pipefail
 
+TOOL_PRODUCT_NAME=""
 TOOL_PRODUCT_NAME="$(basename "$(dirname ${ASDF_INSTALL_PATH})")"
+readonly TOOL_PRODUCT_NAME
 
-TOOL_NAME="asdf-apache"
+readonly TOOL_NAME="asdf-apache"
 
 fail() {
   echo -e "asdf-$TOOL_NAME|$TOOL_PRODUCT_NAME: $*"
@@ -13,16 +15,15 @@ fail() {
 
 curl_opts=(-fsSL)
 
-if [ -z "${BASH_SOURCE[0]:-}" ]; then
-  # zsh
-  readonly LIB_DIR="$( cd "$( dirname "${(%):-%N}" )" && pwd )"
-else
-  readonly LIB_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-fi
-
-readonly PRODUCT_NAME="$(basename "$(dirname ${LIB_DIR})")"
+LIB_DIR=""
+LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly LIB_DIR
+PRODUCT_NAME=""
+PRODUCT_NAME="$(basename "$(dirname "${LIB_DIR}")")"
+readonly PRODUCT_NAME
 
 install_version() {
+  # shellcheck disable=SC2034
   local install_type="$1"
   local raw_user_version_arg="$2"
   local version="${raw_user_version_arg}"
@@ -32,28 +33,30 @@ install_version() {
 
   local product_file="${LIB_DIR}/${product_name}.sh"
   if [ -f "${product_file}" ]; then
+    # shellcheck disable=SC1090
     . "${product_file}"
   fi
   local semver=""
-  if [[ $(type -t semver_from_user_input) == function ]] ; then
+  if [[ $(type -t semver_from_user_input) == function ]]; then
     semver="$(semver_from_user_input "${raw_user_version_arg}")"
   else
     semver="$(echo "${raw_user_version_arg}" | sed -E 's/([0-9]+\.[0-9]+(\.[0-9]+)?)-.*/\1/')"
   fi
-  download_url="$(get_download_url $product_name $semver $raw_user_version_arg)"
-  filename="$(basename $download_url)"
+  download_url="$(get_download_url "${product_name}" "${semver}" "${raw_user_version_arg}")"
+  filename="$(basename "${download_url}")"
 
   mkdir -p "${ASDF_DOWNLOAD_PATH}"
   local filepath="${ASDF_DOWNLOAD_PATH}/${filename}"
   if [ ! -f "${filepath}" ]; then
     echo "Downloading ${product_name}-${raw_user_version_arg} from ${download_url}"
-    download "${download_url}" "${filepath}" || (>&2 echo 'not a valid version number' && exit 1)
+    download "${download_url}" "${filepath}" || (echo >&2 'not a valid version number' && exit 1)
   fi
   mkdir -p "${install_path}"
   extract "${filepath}" "${install_path}"
   if [ -z "${TOOL_TEST:-}" ]; then
     # not sure why this returns a status code of 1 on github actions
-    local test_filepath="$(find "${install_path}/bin" -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) -exec test -x {} \; -print | head -n 1 || true)"
+    local test_filepath=""
+    test_filepath="$(find "${install_path}/bin" -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) -exec test -x {} \; -print | head -n 1 || true)"
     TOOL_TEST="bin/$(basename "${test_filepath}")"
   fi
   (
@@ -80,14 +83,15 @@ extract() {
   else
     local VERBOSE=""
   fi
-  tar -x${VERBOSE}f "${filepath}" --strip-components=1 -C "${output}"
+  tar -x"${VERBOSE}f" "${filepath}" --strip-components=1 -C "${output}"
 }
 
 download() {
   local download_url="${1}"
   local output_path="${2}"
-  local curl_cmd="$(command -vp curl)"
-  $($curl_cmd -fS -# "$download_url" -o "$output_path")
+  local curl_cmd=""
+  curl_cmd="$(command -vp curl)"
+  $curl_cmd -fS -# "$download_url" -o "$output_path"
 }
 
 get_dist_folder() {
@@ -98,18 +102,19 @@ get_dist_folder() {
 get_version_folder() {
   local product_name="$1"
   local semverish="$2"
-  local dist_folder_url="$(get_dist_folder "${product_name}")"
-  echo "$(curl "${curl_opts}" "${dist_folder_url}/" 2>/dev/null | grep -o -E 'href=".+">' | grep -o -E "\".*${semverish}/\"" | tr -d '"/>')"
+  local dist_folder_url=""
+  dist_folder_url="$(get_dist_folder "${product_name}")"
+  curl "${curl_opts[*]}" "${dist_folder_url}/" 2>/dev/null | grep -o -E 'href=".+">' | grep -o -E "\".*${semverish}/\"" | tr -d '"/>'
 }
 
 default_filename_extended_pattern() {
   local product_name="$1"
   local raw_user_version_arg="$2"
   local version_folder_url="$3"
-  local readonly file_extensions="tgz|tar.gz"
+  local -r file_extensions="tgz|tar.gz"
   local version=""
   if [[ ! "${raw_user_version_arg}" =~ .*-src$ ]]; then
-    add_version_info="$(cut -s -d'-' -f2 <<< "${raw_user_version_arg}")"
+    add_version_info="$(cut -s -d'-' -f2 <<<"${raw_user_version_arg}")"
     if [ -n "${add_version_info}" ]; then
       add_version_info="-${add_version_info}"
     fi
@@ -125,21 +130,24 @@ grep_filename() {
   local raw_user_version_arg="$3"
 
   local pattern=""
-  if [[ $(type -t filename_extended_pattern) == function ]] ; then
+  if [[ $(type -t filename_extended_pattern) == function ]]; then
     pattern="$(filename_extended_pattern "${product_name}" "${raw_user_version_arg}" "${version_folder_url}")"
   else
     pattern="$(default_filename_extended_pattern "${product_name}" "${raw_user_version_arg}" "${version_folder_url}")"
   fi
-  echo "$(curl "${curl_opts}" "${version_folder_url}/" 2>/dev/null | grep -o -E 'href=".+">' | grep -o -E "${pattern}" | tr -d '"/>')"
+  curl "${curl_opts[*]}" "${version_folder_url}/" 2>/dev/null | grep -o -E 'href=".+">' | grep -o -E "${pattern}" | tr -d '"/>'
 }
 
 get_download_url() {
   local product_name="$1"
   local semver="$2"
   local raw_user_version_arg="$3"
-  local dist_folder_url="$(get_dist_folder "${product_name}")"
-  local version_folder="$(get_version_folder "${product_name}" "${semver}")"
+  local dist_folder_url=""
+  dist_folder_url="$(get_dist_folder "${product_name}")"
+  local version_folder=""
+  version_folder="$(get_version_folder "${product_name}" "${semver}")"
   [ -z "${version_folder}" ] && fail "Could not get subversion folder for '${semver}' in '${dist_folder_url}'"
-  local filename="$(grep_filename "${product_name}" "${dist_folder_url}/${version_folder}" "${raw_user_version_arg}")"
+  local filename=""
+  filename="$(grep_filename "${product_name}" "${dist_folder_url}/${version_folder}" "${raw_user_version_arg}")"
   echo "${dist_folder_url}/${version_folder}/${filename}"
 }

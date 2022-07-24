@@ -7,20 +7,20 @@ if [ -n "${DEBUG}" ]; then
   set -x
 fi
 
-if [ -z "${BASH_SOURCE[0]:-}" ]; then
-  # zsh
-  readonly THIS_DIR="$( cd "$( dirname "${(%):-%N}" )" && pwd )"
-else
-  readonly THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-fi
+BIN_DIR=""
+BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly BIN_DIR
 
+declare THIS_PLUGIN_DIR PRODUCT_NAME
 readonly INCLUDE_SRC="${INCLUDE_SRC:-1}"
-readonly THIS_PLUGIN_DIR="$(dirname "${THIS_DIR}")"
+THIS_PLUGIN_DIR="$(dirname "${BIN_DIR}")"
+readonly THIS_PLUGIN_DIR
 readonly THIS_PLUGIN_LIB_DIR="${THIS_PLUGIN_DIR}/lib"
-readonly PRODUCT_NAME="$(basename "${THIS_PLUGIN_DIR}")"
+PRODUCT_NAME="$(basename "${THIS_PLUGIN_DIR}")"
+readonly PRODUCT_NAME
 
-command -vp curl 2>&1 >/dev/null || (>&2 echo 'Missing curl' && exit 1)
-command -v parallel 2>&1 >/dev/null || (>&2 echo 'Missing gnu parallel' && exit 1)
+{ command -vp curl >/dev/null; } 2>&1 || (echo >&2 'Missing curl' && exit 1)
+{ command -v parallel >/dev/null; } 2>&1 || (echo >&2 'Missing gnu parallel' && exit 1)
 
 releases_path() {
   local product_name="${1}"
@@ -35,9 +35,9 @@ list_release_folders() {
   curl_cmd="$(command -vp curl)"
   cmd="${curl_cmd} -fsS"
 
-  raw_versions="$(eval $cmd $releases_path)"
+  raw_versions="$(eval "${cmd}" "${releases_path}")"
   grep_str='href=".+\/">'
-  trimmed_versions="$(echo "${raw_versions}" | grep -oE "${grep_str}" | sed -E 's/.+"(apache-)?(.+)">/\2/g' | cut -d/ -f1  )"
+  trimmed_versions="$(echo "${raw_versions}" | grep -oE "${grep_str}" | sed -E 's/.+"(apache-)?(.+)">/\2/g' | cut -d/ -f1)"
   echo "${trimmed_versions}" | sort_top_level_versions
 }
 
@@ -48,20 +48,20 @@ list_versions() {
   curl_cmd="$(command -vp curl)"
   cmd="${curl_cmd} -fsS"
 
-  raw_versions="$(eval $cmd $releases_path)"
+  raw_versions="$(eval "${cmd}" "${releases_path}")"
   grep_str='href=".*'"(${product_name})?"'.+(tgz|tar.gz)">'
-  trimmed_versions="$(echo "${raw_versions}" | grep -oE "${grep_str}" | sed -E 's/.+"(apache-)?(.+)">/\2/g' | cut -d/ -f1  )"
+  trimmed_versions="$(echo "${raw_versions}" | grep -oE "${grep_str}" | sed -E 's/.+"(apache-)?(.+)">/\2/g' | cut -d/ -f1)"
   echo "${trimmed_versions}" | sort_top_level_versions
 }
 
 # stolen from https://github.com/rbenv/ruby-build/pull/631/files#diff-fdcfb8a18714b33b07529b7d02b54f1dR942
 sort_top_level_versions() {
-  sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' | \
+  sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' |
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
 sort_sub_versions() {
-            # make columns seperated by | I.E. '1.3.2|b|1.3.2-bin' # shaded-1|0|||shaded-1.0
+  # make columns seperated by | I.E. '1.3.2|b|1.3.2-bin' # shaded-1|0|||shaded-1.0
   sed -E 's/(.+)/\1|\1/;s/(([0-9]+)\.([0-9]*)(\.?([0-9])*))-?(.)?(.*\|(.+))/\2|\3|\5|\6|\8/g;' | sort -t"|" -k 1,1n -k2,2n -k3,3n -k4,4r | cut -d"|" -f5
 }
 
@@ -74,18 +74,19 @@ get_sub_versions() {
   sub_release_path="$(releases_path "${product_name}" "${version}/")"
   file_names="$(list_versions "${product_name}" "${sub_release_path}")"
   if [ -f "${product_lib_file}" ]; then
+    # shellcheck disable=SC1090
     . "${product_lib_file}"
     list_sub_versions "${file_names}" "${include_src}"
   else
-    if [ "${include_src}" = "0" ] ; then
-      printf "%s" "${file_names}" | \
-        grep -E 'tgz|tar\.gz' | \
-        sed -E 's/'"${product_name}"'-(.+)(\.tgz|\.tar.gz)/\1/g' | \
+    if [ "${include_src}" = "0" ]; then
+      printf "%s" "${file_names}" |
+        grep -E 'tgz|tar\.gz' |
+        sed -E 's/'"${product_name}"'-(.+)(\.tgz|\.tar.gz)/\1/g' |
         sed 's/\-bin//g'
     else
-      printf "%s" "${file_names}" | \
-        grep -E '\-bin.*\.tgz|\-bin.*\.tar\.gz' | \
-        sed -E 's/'"${product_name}"'-(.+)(\.tgz|\.tar.gz)/\1/g' | \
+      printf "%s" "${file_names}" |
+        grep -E '\-bin.*\.tgz|\-bin.*\.tar\.gz' |
+        sed -E 's/'"${product_name}"'-(.+)(\.tgz|\.tar.gz)/\1/g' |
         sed 's/\-bin//g'
     fi
   fi
@@ -97,11 +98,11 @@ export -f list_versions
 export -f sort_top_level_versions
 export SHELLOPTS
 export THIS_PLUGIN_LIB_DIR
-
 release_path="$(releases_path "${PRODUCT_NAME}")"
 init_versions="$(list_release_folders "${PRODUCT_NAME}" "${release_path}")"
-count="$(wc -l <<<"${init_versions}")"
-echo "$(parallel --jobs ${count} get_sub_versions "${PRODUCT_NAME}" "1" <<< "${init_versions}")" |  sort_sub_versions | tr "\n" " "
+count="$(wc -l <<<"${init_versions}" | tr -d " ")"
+# shellcheck disable=SC2005
+echo "$(parallel --jobs "${count}" get_sub_versions "${PRODUCT_NAME}" "1" <<<"${init_versions}")" | sort_sub_versions | tr "\n" " "
 
 if [ -n "${DEBUG}" ]; then
   set +x
