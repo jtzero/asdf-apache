@@ -14,11 +14,11 @@ default_filename_extended_pattern() {
   echo "\".*${product_name}_${version_type}.(${file_extensions})\""
 }
 
-# asdf auto parses args and gets user_version_arg.split('-')[0]
 list_sub_versions() {
   local file_names="${1}"
   local include_src="${2}"
-  local include_site_docs compressed
+  local include_site_docs="${INCLUDE_SITE_DOCS:-0}"
+  local compressed
   include_site_docs="${3:-1}"
   compressed="$(printf "%s" "${file_names}" |
     grep -E 'tgz|tar\.gz' |
