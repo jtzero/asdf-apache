@@ -16,22 +16,9 @@ readonly INCLUDE_SRC="${INCLUDE_SRC:-false}"
 THIS_PLUGIN_DIR="$(dirname "${BIN_DIR}")"
 readonly THIS_PLUGIN_DIR
 readonly THIS_PLUGIN_LIB_DIR="${THIS_PLUGIN_DIR}/lib"
-FOLDER_NAME="$(basename "${THIS_PLUGIN_DIR}")"
-PRODUCT_NAME="${PRODUCT_NAME:-$FOLDER_NAME}"
-readonly PRODUCT_NAME
-TOOL_PRODUCT_NAME="$(basename "${THIS_PLUGIN_DIR}")"
-readonly TOOL_PRODUCT_NAME
-readonly TOOL_NAME="apache"
 
-curl_opts=(-fsSL)
-
-fail() {
-  echo -e "asdf-$TOOL_NAME|$TOOL_PRODUCT_NAME: $*"
-  exit 1
-}
-
-command -vp curl >/dev/null 2>&1 || fail 'Missing curl'
-command -v parallel >/dev/null 2>&1 || fail 'Missing gnu parallel'
+# shellcheck source=../lib/utils.bash
+. "${THIS_PLUGIN_LIB_DIR}/utils.bash"
 
 releases_path() {
   local -r product_name="${1}"
@@ -77,7 +64,11 @@ sort_sub_versions() {
   sed -E 's/(.+)/\1|\1/;s/(([0-9]+)\.([0-9]*)(\.?([0-9])*))-?(.)?(.*\|(.+))/\2|\3|\5|\6|\8/g;' | sort -t"|" -k 1,1n -k2,2n -k3,3n -k4,4r | cut -d"|" -f5
 }
 
+# TODO move this to libexec
 get_sub_versions() {
+  # shellcheck source=../lib/utils.bash
+  . "${THIS_PLUGIN_LIB_DIR}/utils.bash"
+
   local -r product_name="$1"
   local -r include_src="$2"
   local -r version="$3"
