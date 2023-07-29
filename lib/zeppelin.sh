@@ -13,9 +13,9 @@ list_sub_versions() {
   if [ "${include_src}" = "true" ]; then
     fail "Cannot currently handle source download"
   elif [ "${include_netinst}" = "true" ]; then
-    printf "%s\n" "${file_names}" | grep -E "(bin-all|bin-netinst).${FILE_EXT}" | sed "s/-bin-all.${FILE_EXT}//" | sed "s/-bin-netinst.${FILE_EXT}/-netinst/"
+    printf "%s\n" "${file_names}" | grep -E "(bin-all|bin-netinst).${FILE_EXT}" | sed "s/-bin-all.${FILE_EXT}//" | sed "s/-bin-netinst.${FILE_EXT}/-netinst/" | sed 's/zeppelin-//'
   else
-    printf "%s\n" "${file_names}" | grep -E "bin-all.${FILE_EXT}" | sed "s/-bin-all.${FILE_EXT}//"
+    printf "%s\n" "${file_names}" | grep -E "bin-all.${FILE_EXT}" | sed "s/-bin-all.${FILE_EXT}//" | sed 's/zeppelin-//'
   fi
 }
 
