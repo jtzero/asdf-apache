@@ -111,7 +111,7 @@ get_versions() {
   count="$(wc -l <<<"${init_versions}")"
 
   # shellcheck disable=SC2005 # not sure if the echo is needed TODO
-  printf '%s\n' "$(parallel --jobs "$count" get_sub_versions "${product_name}" "${include_src}" <<<"${init_versions}")" | sort_sub_versions | tr "\n" " "
+  printf '%s' "$(parallel --jobs "$count" get_sub_versions "${product_name}" "${include_src}" <<<"${init_versions}")" | sort_sub_versions | tr "\n" " "
 }
 
 case "${PRODUCT_NAME}" in
