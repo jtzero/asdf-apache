@@ -24,20 +24,20 @@ list_sub_versions() {
     sed -E 's/'"${product_name}"'[-_](.+)(\.tgz|\.tar.gz)/\1/g')"
 
   local filters=()
-  if [ "${include_src}" = "true" ]; then
+  if [ "${include_src}" = "false" ]; then
     filters[1]='\-src'
   fi
-  if [ "${include_site_docs}" = "true" ]; then
+  if [ "${include_site_docs}" = "false" ]; then
     filters[2]='\-site-docs'
   fi
 
   local filter_clause=""
-  filter_clause="$(join_by '|' "${filters[1]}" "${filters[2]}")"
+  filter_clause="$(join_by '|' "${filters[1]:-}" "${filters[2]:-}")"
 
-  if [ -n "${filter_clause}" ]; then
-    printf "%s" "${compressed}" | grep -E -v "${filter_clause}"
-  else
+  if [ "${filter_clause}" = "|" ]; then
     printf "%s" "${compressed}"
+  else
+    printf "%s" "${compressed}" | grep -E -v "${filter_clause}"
   fi
 }
 
