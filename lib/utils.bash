@@ -12,17 +12,17 @@ readonly LIB_DIR
 if [ -z "${THIS_PLUGIN_DIR:-}" ]; then
   THIS_PLUGIN_DIR="$(dirname "${LIB_DIR}")"
 fi
-TOOL_PRODUCT_NAME="$(basename "${THIS_PLUGIN_DIR}")"
-readonly TOOL_PRODUCT_NAME
 
 PRODUCT_NAME=""
 PRODUCT_NAME="$(basename "$(dirname "${LIB_DIR}")")"
 readonly PRODUCT_NAME
+readonly TOOL_NAME="apache-${PRODUCT_NAME}"
 
-readonly TOOL_NAME="apache"
+PLUGIN_NAME="apache"
+readonly PLUGIN_NAME
 
 fail() {
-  echo -e "asdf-$TOOL_NAME|$TOOL_PRODUCT_NAME: $*"
+  echo -e "asdf-${PLUGIN_NAME}|$TOOL_NAME: $*"
   exit 1
 }
 
