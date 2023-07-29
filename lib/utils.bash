@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+if [ -n "${DEBUG}" ]; then
+  set -xv
+fi
+
 command -vp curl >/dev/null 2>&1 || fail 'Missing curl'
 command -v parallel >/dev/null 2>&1 || fail 'Missing gnu parallel'
 
@@ -166,3 +170,7 @@ get_download_url() {
   fi
   echo "${dist_folder_url}/${version_folder}/${filename}"
 }
+
+if [ -n "${DEBUG}" ]; then
+  set +x
+fi

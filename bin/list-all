@@ -3,10 +3,6 @@ set -Eeuo pipefail
 
 DEBUG="${DEBUG:-}"
 
-if [ -n "${DEBUG}" ]; then
-  set -xv
-fi
-
 BIN_DIR=""
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly BIN_DIR
@@ -68,7 +64,6 @@ sort_sub_versions() {
 get_sub_versions() {
   # shellcheck source=../lib/utils.bash
   . "${THIS_PLUGIN_LIB_DIR}/utils.bash"
-
   local -r product_name="$1"
   local -r include_src="$2"
   local -r version="$3"
@@ -122,7 +117,3 @@ openoffice)
   get_versions "${PRODUCT_NAME}" "${INCLUDE_SRC}"
   ;;
 esac
-
-if [ -n "${DEBUG}" ]; then
-  set +x
-fi
