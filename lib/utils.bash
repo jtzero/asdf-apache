@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-
 TOOL_PRODUCT_NAME="$(basename "$(dirname "${ASDF_INSTALL_PATH}")")"
 readonly TOOL_PRODUCT_NAME
 
@@ -123,7 +122,7 @@ default_filename_extended_pattern() {
   echo "\".*${product_name}-${version}.(${file_extensions})\""
 }
 
-grep_filename() {
+default_grep_filename() {
   local product_name="$1"
   local version_folder_url="$2"
   local raw_user_version_arg="$3"
@@ -141,12 +140,21 @@ get_download_url() {
   local product_name="$1"
   local semver="$2"
   local raw_user_version_arg="$3"
+  local -r product_file="${LIB_DIR}/${PRODUCT_NAME}.sh"
+  if [ -f "${product_file}" ]; then
+    # shellcheck disable=SC1090
+    . "${product_file}"
+  fi
   local dist_folder_url=""
   dist_folder_url="$(get_dist_folder "${product_name}")"
   local version_folder=""
   version_folder="$(get_version_folder "${product_name}" "${semver}")"
   [ -z "${version_folder}" ] && fail "Could not get subversion folder for '${semver}' in '${dist_folder_url}'"
   local filename=""
-  filename="$(grep_filename "${product_name}" "${dist_folder_url}/${version_folder}" "${raw_user_version_arg}")"
+  if [[ $(type -t grep_filename) == function ]]; then
+    filename="$(grep_filename "${product_name}" "${dist_folder_url}/${version_folder}" "${raw_user_version_arg}")"
+  else
+    filename="$(default_grep_filename "${product_name}" "${dist_folder_url}/${version_folder}" "${raw_user_version_arg}")"
+  fi
   echo "${dist_folder_url}/${version_folder}/${filename}"
 }
