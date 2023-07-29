@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# shellcheck source=../lib/utils.bash
+"$(dirname "$0")/list-all" | grep -o '\s[^\s]*$' | sed 's/ //'

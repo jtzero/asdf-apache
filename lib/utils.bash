@@ -1,8 +1,23 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-TOOL_PRODUCT_NAME="$(basename "$(dirname "${ASDF_INSTALL_PATH}")")"
+
+command -vp curl >/dev/null 2>&1 || fail 'Missing curl'
+command -v parallel >/dev/null 2>&1 || fail 'Missing gnu parallel'
+
+LIB_DIR=""
+LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly LIB_DIR
+
+if [ -z "${THIS_PLUGIN_DIR:-}" ]; then
+  THIS_PLUGIN_DIR="$(dirname "${LIB_DIR}")"
+fi
+TOOL_PRODUCT_NAME="$(basename "${THIS_PLUGIN_DIR}")"
 readonly TOOL_PRODUCT_NAME
+
+PRODUCT_NAME=""
+PRODUCT_NAME="$(basename "$(dirname "${LIB_DIR}")")"
+readonly PRODUCT_NAME
 
 readonly TOOL_NAME="apache"
 
@@ -12,13 +27,6 @@ fail() {
 }
 
 curl_opts=(-fsSL)
-
-LIB_DIR=""
-LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly LIB_DIR
-PRODUCT_NAME=""
-PRODUCT_NAME="$(basename "$(dirname "${LIB_DIR}")")"
-readonly PRODUCT_NAME
 
 install_version() {
   # shellcheck disable=SC2034
