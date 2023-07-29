@@ -33,3 +33,11 @@ Check out the [asdf](https://github.com/asdf-vm/asdf) readme for instructions on
 
 ### Including site-docs versions
 `INCLUDE_SITE_DOCS=true asdf list-all kafka`
+
+### Apache use
+  Zeppelin
+    - make sure you have java installed [asdf-java](https://github.com/halcyon/asdf-java)
+    - install zeppelin: `asdf install zeppelin ${SOME_VERSION}`
+    - then once zeppelin is installed: `asdf global zeppelin ${SOME_VERSION}`
+    - `zeppelin-daemon.sh start`
+    - more information on zeppelin: https://zeppelin.apache.org/docs/latest/quickstart/install.html
