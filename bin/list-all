@@ -4,7 +4,7 @@ set -Eeuo pipefail
 DEBUG="${DEBUG:-}"
 
 if [ -n "${DEBUG}" ]; then
-  set -x
+  set -xv
 fi
 
 BIN_DIR=""
@@ -19,7 +19,7 @@ readonly THIS_PLUGIN_LIB_DIR="${THIS_PLUGIN_DIR}/lib"
 FOLDER_NAME="$(basename "${THIS_PLUGIN_DIR}")"
 PRODUCT_NAME="${PRODUCT_NAME:-$FOLDER_NAME}"
 readonly PRODUCT_NAME
-TOOL_PRODUCT_NAME="$(basename "$(dirname "${ASDF_INSTALL_PATH}")")"
+TOOL_PRODUCT_NAME="$(basename "${THIS_PLUGIN_DIR}")"
 readonly TOOL_PRODUCT_NAME
 readonly TOOL_NAME="apache"
 
@@ -112,13 +112,15 @@ get_versions() {
   export -f releases_path
   export -f list_versions
   export -f sort_top_level_versions
+  export DEBUG
+  export THIS_PLUGIN_LIB_DIR
 
   release_path="$(releases_path "${product_name}")"
   init_versions="$(list_release_folders "${product_name}" "${release_path}")"
   count="$(wc -l <<<"${init_versions}")"
 
   # shellcheck disable=SC2005 # not sure if the echo is needed TODO
-  echo "$(parallel --jobs "$count" get_sub_versions "${product_name}" "${include_src}" <<<"${init_versions}")" | sort_sub_versions | tr "\n" " "
+  printf '%s\n' "$(parallel --jobs "$count" get_sub_versions "${product_name}" "${include_src}" <<<"${init_versions}")" | sort_sub_versions | tr "\n" " "
 }
 
 case "${PRODUCT_NAME}" in
