@@ -16,28 +16,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: asdf_plugin_test_zeppelin
-        uses: asdf-vm/actions/plugin-test@v1.1.0
+        uses: asdf-vm/actions/plugin-test@v2.2.0
         with:
           command: " "
           plugin: "zeppelin"
         env:
           DEBUG: 1
       - name: asdf_plugin_test_kafka
-        uses: asdf-vm/actions/plugin-test@v1.1.0
+        uses: asdf-vm/actions/plugin-test@v2.2.0
         with:
           command: " "
           plugin: "kafka"
         env:
           DEBUG: 1
       - name: asdf_plugin_test_flink
-        uses: asdf-vm/actions/plugin-test@v1.1.0
+        uses: asdf-vm/actions/plugin-test@v2.2.0
         with:
           command: " "
           plugin: "flink"
         env:
           DEBUG: 1
       - name: asdf_plugin_test_druid
-        uses: asdf-vm/actions/plugin-test@v1.1.0
+        uses: asdf-vm/actions/plugin-test@v2.2.0
         with:
           command: " "
           plugin: "druid"
@@ -52,28 +52,28 @@ jobs:
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           brew install parallel
       - name: asdf_plugin_test_flink
-        uses: asdf-vm/actions/plugin-test@v1.1.0
+        uses: asdf-vm/actions/plugin-test@v2.2.0
         with:
           command: " "
           plugin: "flink"
         env:
           DEBUG: 1
       - name: asdf_plugin_test_zeppelin
-        uses: asdf-vm/actions/plugin-test@v1.1.0
+        uses: asdf-vm/actions/plugin-test@v2.2.0
         with:
           command: " "
           plugin: "zeppelin"
         env:
           DEBUG: 1
       - name: asdf_plugin_test_druid
-        uses: asdf-vm/actions/plugin-test@v1.1.0
+        uses: asdf-vm/actions/plugin-test@v2.2.0
         with:
           command: " "
           plugin: "druid"
         env:
           DEBUG: 1
       - name: asdf_plugin_test_kafka
-        uses: asdf-vm/actions/plugin-test@v1.1.0
+        uses: asdf-vm/actions/plugin-test@v2.2.0
         with:
           command: " "
           plugin: "kafka"
