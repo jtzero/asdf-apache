@@ -3,4 +3,4 @@
 set -euo pipefail
 
 # shellcheck source=../lib/utils.bash
-"$(dirname "$0")/list-all" | grep -o '\s[^\s]*$' | tr -d ' '
+"$(dirname "$0")/list-all" | tr -d '\n' | sed 's/\s/\n/g' | tail -n 1
