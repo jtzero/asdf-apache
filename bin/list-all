@@ -122,3 +122,7 @@ openoffice)
   get_versions "${PRODUCT_NAME}" "${INCLUDE_SRC}"
   ;;
 esac
+
+if [ -n "${DEBUG:-}" ]; then
+  set +x
+fi
