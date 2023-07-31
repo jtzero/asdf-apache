@@ -123,6 +123,6 @@ openoffice)
   ;;
 esac
 
-if [ -n "${DEBUG:-}" ]; then
+if [ "${KEEP_DEBUG:-}" != "true" ] && [ -n "${DEBUG:-}" ]; then
   set +x
 fi
