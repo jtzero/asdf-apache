@@ -5,7 +5,7 @@ set -euo pipefail
 DEBUG="${DEBUG:-}"
 
 if [ -n "${DEBUG:-}" ]; then
-  set -xv
+  set -x
 fi
 
 command -vp curl >/dev/null 2>&1 || fail 'Missing curl'
