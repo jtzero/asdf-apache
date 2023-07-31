@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-DEBUG="${DEBUG:-}"
-
 BIN_DIR=""
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly BIN_DIR
@@ -106,7 +104,8 @@ get_versions() {
   count="$(wc -l <<<"${init_versions}")"
 
   # shellcheck disable=SC2005 # not sure if the echo is needed TODO
-  printf '%s' "$(parallel --jobs "$count" get_sub_versions "${product_name}" "${include_src}" <<<"${init_versions}")" | sort_sub_versions | tr "\n" " "
+  printf '%s' "$(parallel --jobs "$count" get_sub_versions "${product_name}" "${include_src}" <<<"${init_versions}")" | sort_sub_versions | tr "\n" " " | tr -s ' '
+  printf '\n'
 }
 
 case "${PRODUCT_NAME}" in
