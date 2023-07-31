@@ -172,7 +172,3 @@ get_download_url() {
   fi
   echo "${dist_folder_url}/${version_folder}/${filename}"
 }
-
-if [ -n "${DEBUG}" ]; then
-  set +x
-fi
