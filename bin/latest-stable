@@ -3,7 +3,7 @@
 set -euo pipefail
 
 export KEEP_DEBUG=true
-"$(dirname "$0")/list-all" | tr -d '\n' | sed 's/\s/\n/g' | tail -n 1
+"$(dirname "$0")/list-all" | tr -d '\n' | sed 's/[[:space:]]/\n/g' | tail -n 1
 
 if [ -n "${DEBUG:-}" ]; then
   set +x
