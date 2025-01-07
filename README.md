@@ -2,7 +2,7 @@
 
 [![tests](https://github.com/jtzero/asdf-apache/workflows/tests/badge.svg)](https://github.com/jtzero/asdf-apache/actions)
 
-apache flink|zeppelin|kakfa... in theory anything in https://archive.apache.org/dist/, plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
+apache flink|zeppelin|kakfa... in theory anything in https://downloads.apache.org/, plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
 ## Install
 
@@ -35,9 +35,9 @@ Check out the [asdf](https://github.com/asdf-vm/asdf) readme for instructions on
 `INCLUDE_SITE_DOCS=true asdf list-all kafka`
 
 ### Apache use
-Zeppelin:  
-&nbsp;&nbsp;&nbsp;- make sure you have java installed [asdf-java](https://github.com/halcyon/asdf-java)  
-&nbsp;&nbsp;&nbsp;- install zeppelin: `asdf install zeppelin ${SOME_VERSION}`  
-&nbsp;&nbsp;&nbsp;- then once zeppelin is installed: `asdf global zeppelin ${SOME_VERSION}`  
-&nbsp;&nbsp;&nbsp;- `zeppelin-daemon.sh start`  
-&nbsp;&nbsp;&nbsp;- more information on zeppelin: https://zeppelin.apache.org/docs/latest/quickstart/install.html  
+Zeppelin:
+&nbsp;&nbsp;&nbsp;- make sure you have java installed [asdf-java](https://github.com/halcyon/asdf-java)
+&nbsp;&nbsp;&nbsp;- install zeppelin: `asdf install zeppelin ${SOME_VERSION}`
+&nbsp;&nbsp;&nbsp;- then once zeppelin is installed: `asdf global zeppelin ${SOME_VERSION}`
+&nbsp;&nbsp;&nbsp;- `zeppelin-daemon.sh start`
+&nbsp;&nbsp;&nbsp;- more information on zeppelin: https://zeppelin.apache.org/docs/latest/quickstart/install.html
