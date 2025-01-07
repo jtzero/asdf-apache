@@ -2,8 +2,24 @@
 
 set -euo pipefail
 
+BIN_DIR=""
+BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly BIN_DIR
+plugin_dir="$(dirname "$BIN_DIR")"
+product_name="$(basename "${plugin_dir}")"
+
+lateset_stable_pattern() {
+  printf '%s' '.*'
+}
+
+product_file="${plugin_dir}/lib/${product_name}.sh"
+if [ -f "${product_file}" ]; then
+  # shellcheck disable=SC1090
+  . "${product_file}"
+fi
+
 export KEEP_DEBUG=true
-"$(dirname "$0")/list-all" | tr -d '\n' | sed 's/[[:space:]]/\n/g' | tail -n 1
+"$(dirname "$0")/list-all" | tr -d '\n' | sed 's/[[:space:]]/\n/g' | grep -E "$(latest_stable_pattern)" | tail -n 1
 
 if [ -n "${DEBUG:-}" ]; then
   set +x
