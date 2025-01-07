@@ -78,6 +78,8 @@ get_sub_versions() {
   if [ -f "${product_lib_file}" ]; then
     # shellcheck disable=SC1090
     . "${product_lib_file}"
+  fi
+  if [[ $(type -t list_sub_versions) == function ]]; then
     list_sub_versions "${file_names}" "${include_src}"
   else
     if [ "${include_src}" = "false" ]; then
