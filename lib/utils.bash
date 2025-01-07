@@ -128,7 +128,7 @@ default_filename_extended_pattern() {
   local -r file_extensions="tgz|tar.gz"
   local version=""
   if [[ ! "${raw_user_version_arg}" =~ .*-src$ ]]; then
-    add_version_info="$(cut -s -d'-' -f2 <<<"${raw_user_version_arg}")"
+    add_version_info="$(printf '%s' "${raw_user_version_arg}" | sed -E "s/^${semver}//" | cut -s -d'-' -f2)"
     if [ -n "${add_version_info}" ]; then
       add_version_info="-${add_version_info}"
     fi
@@ -142,10 +142,11 @@ default_grep_filename() {
   local product_name="$1"
   local version_folder_url="$2"
   local raw_user_version_arg="$3"
+  local semver="$4"
 
   local pattern=""
   if [[ $(type -t filename_extended_pattern) == function ]]; then
-    pattern="$(filename_extended_pattern "${product_name}" "${raw_user_version_arg}" "${version_folder_url}")"
+    pattern="$(filename_extended_pattern "${product_name}" "${raw_user_version_arg}" "${version_folder_url}" "${semver}")"
   else
     pattern="$(default_filename_extended_pattern "${product_name}" "${raw_user_version_arg}" "${version_folder_url}")"
   fi
@@ -170,7 +171,7 @@ get_download_url() {
   if [[ $(type -t grep_filename) == function ]]; then
     filename="$(grep_filename "${product_name}" "${dist_folder_url}/${version_folder}" "${raw_user_version_arg}")"
   else
-    filename="$(default_grep_filename "${product_name}" "${dist_folder_url}/${version_folder}" "${raw_user_version_arg}")"
+    filename="$(default_grep_filename "${product_name}" "${dist_folder_url}/${version_folder}" "${raw_user_version_arg}" "${semver}")"
   fi
   echo "${dist_folder_url}/${version_folder}/${filename}"
 }
