@@ -17,7 +17,7 @@ readonly THIS_PLUGIN_LIB_DIR="${THIS_PLUGIN_DIR}/lib"
 releases_path() {
   local -r product_name="${1}"
   local -r version="${2:-}"
-  echo "https://archive.apache.org/dist/${product_name}/${version}"
+  echo "${REPO}${product_name}/${version}"
 }
 
 list_release_folders() {

@@ -27,6 +27,8 @@ readonly TOOL_NAME="apache-${PRODUCT_NAME}"
 PLUGIN_NAME="apache"
 readonly PLUGIN_NAME
 
+REPO="https://downloads.apache.org/"
+
 fail() {
   echo -e "asdf-${PLUGIN_NAME}|$TOOL_NAME: $*"
   exit 1
@@ -108,7 +110,7 @@ download() {
 
 get_dist_folder() {
   local product_name="$1"
-  echo "https://archive.apache.org/dist/${product_name}"
+  echo "${REPO}${product_name}"
 }
 
 get_version_folder() {
