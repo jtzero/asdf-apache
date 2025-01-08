@@ -29,6 +29,15 @@ readonly PLUGIN_NAME
 
 REPO="https://downloads.apache.org/"
 
+if [ -z "${THIS_PLUGIN_DIR:-}" ]; then
+  declare THIS_PLUGIN_DIR
+  THIS_PLUGIN_DIR="$(dirname "${BIN_DIR}")"
+  readonly THIS_PLUGIN_DIR
+fi
+if [ -z "${THIS_PLUGIN_LIBEXEC_DIR:-}" ]; then
+  readonly THIS_PLUGIN_LIBEXEC_DIR="${THIS_PLUGIN_DIR}/libexec"
+fi
+
 fail() {
   echo -e "asdf-${PLUGIN_NAME}|$TOOL_NAME: $*"
   exit 1
@@ -45,13 +54,16 @@ install_version() {
   local product_name="${PRODUCT_NAME}"
   local download_url filename add_version_info
 
-  local product_file="${LIB_DIR}/${product_name}.sh"
-  if [ -f "${product_file}" ]; then
+  local product_lib_file="${LIB_DIR}/${product_name}.sh"
+  local product_libexec_file="${THIS_PLUGIN_LIBEXEC_DIR}/${product_name}.sh"
+  if [ ! -f "${product_libexec_file}" ] && [ -f "${product_lib_file}" ]; then
     # shellcheck disable=SC1090
-    . "${product_file}"
+    . "${product_lib_file}"
   fi
   local semver=""
-  if [[ $(type -t semver_from_user_input) == function ]]; then
+  if [ -f "${product_libexec_file}" ]; then
+    semver="$("${product_libexec_file}" "semver_from_user_input" "${raw_user_version_arg}")"
+  elif [[ $(type -t semver_from_user_input) == function ]]; then
     semver="$(semver_from_user_input "${raw_user_version_arg}")"
   else
     semver="$(echo "${raw_user_version_arg}" | sed -E 's/([0-9]+\.[0-9]+(\.[0-9]+)?)-.*/\1/')"
@@ -143,9 +155,12 @@ default_grep_filename() {
   local version_folder_url="$2"
   local raw_user_version_arg="$3"
   local semver="$4"
+  local product_libexec_file="${THIS_PLUGIN_LIBEXEC_DIR}/${product_name}.sh"
 
   local pattern=""
-  if [[ $(type -t filename_extended_pattern) == function ]]; then
+  if [ -f "${product_libexec_file}" ]; then
+    pattern="$("${product_libexec_file}" "filename_extended_pattern" "${product_name}" "${raw_user_version_arg}" "${version_folder_url}" "${semver}")"
+  elif [[ $(type -t filename_extended_pattern) == function ]]; then
     pattern="$(filename_extended_pattern "${product_name}" "${raw_user_version_arg}" "${version_folder_url}" "${semver}")"
   else
     pattern="$(default_filename_extended_pattern "${product_name}" "${raw_user_version_arg}" "${version_folder_url}")"

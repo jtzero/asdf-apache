@@ -10,6 +10,7 @@ readonly INCLUDE_SRC="${INCLUDE_SRC:-false}"
 THIS_PLUGIN_DIR="$(dirname "${BIN_DIR}")"
 readonly THIS_PLUGIN_DIR
 readonly THIS_PLUGIN_LIB_DIR="${THIS_PLUGIN_DIR}/lib"
+readonly THIS_PLUGIN_LIBEXEC_DIR="${THIS_PLUGIN_DIR}/libexec"
 
 # shellcheck source=../lib/utils.bash
 . "${THIS_PLUGIN_LIB_DIR}/utils.bash"
@@ -73,13 +74,16 @@ get_sub_versions() {
   local -r version="$3"
   local sub_release_path file_names
   local product_lib_file="${THIS_PLUGIN_LIB_DIR}/${product_name}.sh"
+  local product_libexec_file="${THIS_PLUGIN_LIBEXEC_DIR}/${product_name}.sh"
   sub_release_path="$(releases_path "${product_name}" "${version}/")"
   file_names="$(list_versions "${product_name}" "${sub_release_path}")"
-  if [ -f "${product_lib_file}" ]; then
+  if [ ! -f "${product_libexec_file}" ] && [ -f "${product_lib_file}" ]; then
     # shellcheck disable=SC1090
     . "${product_lib_file}"
   fi
-  if [[ $(type -t list_sub_versions) == function ]]; then
+  if [ -f "${product_libexec_file}" ]; then
+    "${product_libexec_file}" "list_sub_versions" "${include_src}" "${file_names}"
+  elif [[ $(type -t list_sub_versions) == function ]]; then
     list_sub_versions "${file_names}" "${include_src}"
   else
     if [ "${include_src}" = "false" ]; then
