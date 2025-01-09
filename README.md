@@ -36,8 +36,8 @@ Check out the [asdf](https://github.com/asdf-vm/asdf) readme for instructions on
 
 ### Apache use
 Zeppelin:
-&nbsp;&nbsp;&nbsp;- make sure you have java installed [asdf-java](https://github.com/halcyon/asdf-java)
-&nbsp;&nbsp;&nbsp;- install zeppelin: `asdf install zeppelin ${SOME_VERSION}`
-&nbsp;&nbsp;&nbsp;- then once zeppelin is installed: `asdf global zeppelin ${SOME_VERSION}`
-&nbsp;&nbsp;&nbsp;- `zeppelin-daemon.sh start`
-&nbsp;&nbsp;&nbsp;- more information on zeppelin: https://zeppelin.apache.org/docs/latest/quickstart/install.html
+ - make sure you have java installed [asdf-java](https://github.com/halcyon/asdf-java)
+ - install zeppelin: `asdf install zeppelin ${SOME_VERSION}`
+ - then once zeppelin is installed: `asdf global zeppelin ${SOME_VERSION}`
+ - `zeppelin-daemon.sh start`
+ - more information on zeppelin: https://zeppelin.apache.org/docs/latest/quickstart/install.html
