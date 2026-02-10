@@ -133,6 +133,11 @@ get_version_folder() {
   curl "${curl_opts[*]}" "${dist_folder_url}/" 2>/dev/null | grep -o -E 'href=".+">' | grep -o -E "\".*${semverish}/\"" | tr -d '"/>'
 }
 
+get_dist_folder_page() {
+  local -r dist_folder_url="${1}"
+  printf '%s' "$(curl "${curl_opts[*]}" "${dist_folder_url}/" 2>/dev/null)"
+}
+
 default_filename_extended_pattern() {
   local product_name="$1"
   local raw_user_version_arg="$2"
@@ -173,6 +178,7 @@ get_download_url() {
   local semver="$2"
   local raw_user_version_arg="$3"
   local -r product_file="${LIB_DIR}/${PRODUCT_NAME}.sh"
+  local -r product_libexec_file="${THIS_PLUGIN_LIBEXEC_DIR}/${product_name}.sh"
   if [ -f "${product_file}" ]; then
     # shellcheck disable=SC1090
     . "${product_file}"
@@ -180,7 +186,12 @@ get_download_url() {
   local dist_folder_url=""
   dist_folder_url="$(get_dist_folder "${product_name}")"
   local version_folder=""
-  version_folder="$(get_version_folder "${product_name}" "${semver}")"
+  if [ -f "${product_libexec_file}" ]; then
+    local -r dist_folder_page="$(get_dist_folder_page "${dist_folder_url}")"
+    version_folder="$("${product_libexec_file}" filter_dist_folder_page "${semver}" "${dist_folder_page}")"
+  else
+    version_folder="$(get_version_folder "${product_name}" "${semver}")"
+  fi
   [ -z "${version_folder}" ] && fail "Could not get subversion folder for '${semver}' in '${dist_folder_url}'"
   local filename=""
   if [[ $(type -t grep_filename) == function ]]; then
