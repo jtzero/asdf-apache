@@ -44,6 +44,13 @@ filename_extended_pattern() {
   echo "\".*${product_name}-${version}.*(${file_extensions})\""
 }
 
+filter_dist_folder_page() {
+  local -r semverish="${1}"
+  local -r page="${2}"
+  printf '%s' "${page}" | grep -o -E 'href=".+">' | grep -o -E "\"flink-${semverish}/\"" | tr -d '"/>'
+
+}
+
 case "$1" in
 latest_stable_pattern)
   latest_stable_pattern
@@ -56,6 +63,9 @@ semver_from_user_input)
   ;;
 filename_extended_pattern)
   filename_extended_pattern "${2}" "${3}" "${4}" "${5}"
+  ;;
+filter_dist_folder_page)
+  filter_dist_folder_page "${2}" "${3}"
   ;;
 *)
   echo "Unknown function $1" >&2
