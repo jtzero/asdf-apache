@@ -43,8 +43,6 @@ fail() {
   exit 1
 }
 
-curl_opts=(-fsSL)
-
 install_version() {
   # shellcheck disable=SC2034
   local install_type="$1"
