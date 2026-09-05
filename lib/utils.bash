@@ -10,6 +10,8 @@ fi
 
 command -vp curl >/dev/null 2>&1 || fail 'Missing curl'
 command -v parallel >/dev/null 2>&1 || fail 'Missing gnu parallel'
+# ignore citation for now
+echo '' | parallel --citation >/dev/null 2>&1 || true
 
 LIB_DIR=""
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -20,7 +22,9 @@ if [ -z "${THIS_PLUGIN_DIR:-}" ]; then
 fi
 
 PRODUCT_NAME=""
-PRODUCT_NAME="$(basename "$(dirname "${LIB_DIR}")")"
+PLUGIN_DIRNAME="$(basename "$(dirname "${LIB_DIR}")")"
+PLUGIN_TEST_PREFIX="asdf-test-"
+PRODUCT_NAME="${PLUGIN_DIRNAME#"${PLUGIN_TEST_PREFIX}"}"
 readonly PRODUCT_NAME
 readonly TOOL_NAME="apache-${PRODUCT_NAME}"
 
@@ -28,6 +32,8 @@ PLUGIN_NAME="apache"
 readonly PLUGIN_NAME
 
 REPO="https://downloads.apache.org/"
+
+curl_opts=(-fsSL)
 
 if [ -z "${THIS_PLUGIN_DIR:-}" ]; then
   declare THIS_PLUGIN_DIR
@@ -39,18 +45,19 @@ if [ -z "${THIS_PLUGIN_LIBEXEC_DIR:-}" ]; then
 fi
 
 fail() {
-  echo -e "asdf-${PLUGIN_NAME}|$TOOL_NAME: $*"
+  echo -e "asdf-${PLUGIN_NAME}|${TOOL_NAME}: $*"
   exit 1
 }
 
-curl_opts=(-fsSL)
+build_release_file() {
+  local asdf_download_path="$1"
+  local asdf_install_version="$2"
+  echo "${asdf_download_path}/${PRODUCT_NAME}-${asdf_install_version}.tar.gz"
+}
 
-install_version() {
-  # shellcheck disable=SC2034
-  local install_type="$1"
-  local raw_user_version_arg="$2"
-  local version="${raw_user_version_arg}"
-  local install_path="${3%/bin}"
+download_release() {
+  local raw_user_version_arg="$1"
+  local release_file="$2"
   local product_name="${PRODUCT_NAME}"
   local download_url filename add_version_info
 
@@ -71,14 +78,24 @@ install_version() {
   download_url="$(get_download_url "${product_name}" "${semver}" "${raw_user_version_arg}")"
   filename="$(basename "${download_url}")"
 
-  mkdir -p "${ASDF_DOWNLOAD_PATH}"
-  local filepath="${ASDF_DOWNLOAD_PATH}/${filename}"
+  local filepath="${release_file}" #${ASDF_DOWNLOAD_PATH}/${filename}
   if [ ! -f "${filepath}" ]; then
     echo "Downloading ${product_name}-${raw_user_version_arg} from ${download_url}"
     download "${download_url}" "${filepath}" || (echo >&2 'not a valid version number' && exit 1)
   fi
+}
+
+install_version() {
+  # shellcheck disable=SC2034
+  local install_type="$1"
+  local raw_user_version_arg="$2"
+  local version="${raw_user_version_arg}"
+  local install_path="${3%/bin}"
+
+  local -r release_file="$(build_release_file "${ASDF_DOWNLOAD_PATH}" "${raw_user_version_arg}")"
+  download_release "${raw_user_version_arg}" "${release_file}"
   mkdir -p "${install_path}"
-  extract "${filepath}" "${install_path}"
+  extract "${release_file}" "${install_path}"
   if [ -z "${TOOL_TEST:-}" ]; then
     # not sure why this returns a status code of 1 on github actions
     local test_filepath=""
@@ -87,7 +104,7 @@ install_version() {
   fi
   (
     #mkdir -p "${install_path}"
-    cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
+    cp -r "${ASDF_DOWNLOAD_PATH}"/* "${install_path}"
 
     # TODO: Assert <YOUR TOOL> executable exists.
     local tool_cmd
@@ -102,7 +119,7 @@ install_version() {
 }
 
 extract() {
-  local filename="$1"
+  local filepath="$1"
   local output="$2"
   if [ -n "${DEBUG:-}" ]; then
     local VERBOSE="v"
